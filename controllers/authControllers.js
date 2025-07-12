@@ -14,11 +14,11 @@ try {
     if(!isMatch){
         return res.status(400).json({message: 'Invalid Password'});
     }
-    // const payload = {userId : user.id};
-    // const token = jwt.sign(payload,process.env.JWT_SECRET);
-    return res.status(200).json({message: 'Login Successfull'});
+    const payload = {userId : user.id};
+    const token = jwt.sign(payload,process.env.JWT_SECRET);
+    return res.status(200).json({message: 'Login Successfull', userToken : token});
 } catch (error) {
-    
+    console.log(`This is Exception caused ${error}`);
 }
 };
 

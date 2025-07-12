@@ -2,31 +2,39 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Socket Test</title>
-  <!-- Load socket.io client directly from CDN -->
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <title>HLS Test</title>
 </head>
 <body>
-  <h1>Socket.io Test</h1>
-  <input id="msg" placeholder="Type a message" />
-  <button onclick="sendMessage()">Send</button>
+  <h1>HLS.js Player</h1>
+  <video id="video" controls width="640" height="360"></video>
 
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    // Connect to your server
-    const socket = io('http://localhost:4001');
+    const video = document.getElementById('video');
+    const playlistUrl = 'http://localhost:4000/api/videos/11';
 
-    socket.on('connect', () => {
-      console.log('✅ Connected to server:', socket.id);
-    });
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(playlistUrl);
+      hls.attachMedia(video);
 
-    socket.on('message', (data) => {
-      console.log('💬 Received from server:', data);
-    });
+      hls.on(Hls.Events.MANIFEST_PARSED, function() {
+        console.log('✅ Manifest loaded!');
+        video.play();
+      });
 
-    function sendMessage() {
-      const msg = document.getElementById('msg').value;
-      socket.emit('message', msg);
-      console.log('🚀 Sent:', msg);
+      hls.on(Hls.Events.ERROR, function(event, data) {
+        console.error('🚩 HLS.js ERROR:', data);
+      });
+
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = playlistUrl;
+      video.addEventListener('loadedmetadata', function() {
+        console.log('✅ Native HLS loaded!');
+        video.play();
+      });
+    } else {
+      console.error('❌ HLS not supported!');
     }
   </script>
 </body>
